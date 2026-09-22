@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiện đẹp trai</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    background: #000;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #fff;
+    min-height: 100vh;
+    overflow: hidden;
+}
+#splash {
+    position: fixed; inset: 0; background: #000;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    z-index: 99999; cursor: pointer; transition: opacity 1s ease;
+}
+#splash.hide { opacity: 0; pointer-events: none; }
+.splash-text {
+    font-size: 48px; font-weight: 900; letter-spacing: 8px;
+    color: #fff; text-transform: uppercase;
+    animation: pulse 1.5s ease-in-out infinite;
+    text-shadow: 0 0 30px rgba(255,255,255,0.5);
+    user-select: none;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
+}
+.splash-sub {
+    margin-top: 20px; font-size: 12px; color: #444;
+    letter-spacing: 4px; animation: pulse 2s infinite;
+}
+#bgVideo {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden;
+}
+#bgVideo iframe {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw; height: 56.25vw;
+    min-height: 100vh; min-width: 177.78vh;
+    border: 0; pointer-events: none;
+}
+#bgOverlay {
+    position: fixed; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.45) 100%);
+    z-index: 1; pointer-events: none;
+}
+#main {
+    display: none; position: relative; z-index: 2;
+    min-height: 100vh; width: 100%;
+    justify-content: center; align-items: center;
+    flex-direction: column; padding: 20px;
+    opacity: 0; transition: opacity 1s ease;
+}
+#main.show { display: flex; opacity: 1; }
+
+.hero {
+    display: flex; flex-direction: column;
+    align-items: center; margin-bottom: 26px;
+}
+.hero-avatar-wrap {
+    position: relative; width: 220px; height: 220px;
+    margin-bottom: 22px;
+}
+.hero-avatar {
+    width: 176px; height: 176px;
+    border-radius: 50%; object-fit: cover;
+    display: block; position: absolute;
+    top: 22px; left: 22px; z-index: 1;
+    background: linear-gradient(135deg, #5865F2, #EB459E);
+}
+.hero-deco {
+    width: 220px; height: 220px;
+    position: absolute; top: 0; left: 0;
+    z-index: 2; pointer-events: none; display: none;
+}
+.hero-status {
+    position: absolute; bottom: 26px; right: 26px;
+    width: 36px; height: 36px;
+    border-radius: 50%; border: 5px solid rgba(0,0,0,0.6);
+    background: #747f8d; z-index: 3;
+}
+.hero-status.online { background: #23a55a; }
+.hero-status.idle { background: #f0b232; }
+.hero-status.dnd { background: #f23f43; }
+.hero-name {
+    font-size: 38px; font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.9);
+    margin-bottom: 8px; text-align: center;
+}
+.hero-bio {
+    font-size: 17px; color: #eee;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.95);
+    text-align: center; max-width: 90%; line-height: 1.4;
+}
+.user-mini {
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(30,30,35,0.65);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px; padding: 12px 20px;
+    margin-bottom: 26px; max-width: 340px;
+}
+.user-mini-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);
+    object-fit: cover; flex-shrink: 0;
+}
+.user-mini-info { min-width: 0; flex: 1; }
+.user-mini-name {
+    font-size: 18px; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.user-mini-tag {
+    font-size: 13px; color: #aaa;
+    display: flex; align-items: center; gap: 5px; margin-top: 3px;
+}
+.mini-flag { font-size: 14px; }
+.socials {
+    display: flex; gap: 24px; margin-bottom: 18px; justify-content: center;
+}
+.social-icon {
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s; cursor: pointer; text-decoration: none;
+}
+.social-icon:hover { transform: scale(1.15); }
+.social-icon svg {
+    width: 42px; height: 42px; fill: #fff;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.9));
+}
+.views-row {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 16px; color: #ddd;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.95);
+    margin-bottom: 18px;
+}
+.music-mini {
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(20,20,22,0.4);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 40px; padding: 12px 22px 12px 12px;
+    max-width: 420px; width: 100%; margin-bottom: 16px;
+}
+.disc-mini-wrap {
+    width: 54px; height: 54px;
+    border-radius: 50%; overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.2);
+    position: relative;
+    background: #333;
+}
+.disc-mini {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%;
+    animation: spin 8s linear infinite;
+    animation-play-state: paused;
+}
+.disc-mini.playing { animation-play-state: running; }
+@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+.music-mini-info { flex: 1; min-width: 0; }
+.music-mini-title {
+    font-size: 16px; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.music-mini-progress {
+    height: 3px; background: rgba(255,255,255,0.2);
+    border-radius: 2px; overflow: hidden;
+    margin-top: 6px; cursor: pointer;
+}
+.music-mini-fill {
+    height: 100%; background: #fff;
+    width: 0%; transition: width 0.3s linear;
+}
+.like-row {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 16px; color: #ddd;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.95);
+    cursor: pointer; user-select: none; transition: transform 0.15s;
+}
+.like-row:active { transform: scale(0.92); }
+.heart-icon { font-size: 22px; transition: transform 0.3s; }
+.heart-icon.liked { animation: heartPop 0.4s ease; }
+@keyframes heartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.6); }
+    100% { transform: scale(1); }
+}
+</style>
+</head>
+<body>
+
+<div id="splash" onclick="enterSite()">
+    <div class="splash-text">CLICK</div>
+    <div class="splash-sub">BẤM VÔ ĐỂ XEM ABOUT</div>
+</div>
+
+<div id="bgVideo">
+    <iframe 
+        id="videoFrame"
+        src="https://player.cloudinary.com/embed/?cloud_name=raqf0kpz&public_id=SSSTik.vn_ciOiIifQ_ysu4an&autoplay=true&loop=true&muted=true&controls=false&playsinline=true"
+        allow="autoplay; encrypted-media; fullscreen"
+        allowfullscreen>
+    </iframe>
+</div>
+<div id="bgOverlay"></div>
+
+<div id="main">
+    <div class="hero">
+        <div class="hero-avatar-wrap">
+            <img class="hero-avatar" id="heroAvatar" src="" alt="avatar">
+            <img class="hero-deco" id="heroDeco" src="" alt="deco">
+            <div class="hero-status" id="heroStatus"></div>
+        </div>
+        <div class="hero-name" id="heroName">Loading...</div>
+        <div class="hero-bio">Vô cảm với ty</div>
+    </div>
+
+    <div class="user-mini">
+        <img class="user-mini-avatar" id="userMiniAvatar" src="" alt="">
+        <div class="user-mini-info">
+            <div class="user-mini-name" id="userMiniName">@loading</div>
+            <div class="user-mini-tag">
+                <span class="mini-flag">🇻🇳</span>
+                <span id="userMiniTag">loading</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="socials">
+        <a class="social-icon" href="https://discord.com/users/1522769141411348699" target="_blank" title="Discord">
+            <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>
+        </a>
+        <a class="social-icon" href="https://www.facebook.com/share/19ypx772Nx/" target="_blank" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a class="social-icon" href="https://open.spotify.com/user/31qajwqvdj6cvh4h6soteoi44n2u" target="_blank" title="Spotify">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.3.539-1.02.72-1.56.42z"/></svg>
+        </a>
+    </div>
+
+    <div class="views-row">
+        <span>👁️</span>
+        <span id="viewCount">0</span>
+    </div>
+
+    <div class="music-mini">
+        <div class="disc-mini-wrap">
+            <img class="disc-mini" id="discMini" src="https://res.cloudinary.com/raqf0kpz/image/upload/v1790049794/Screenshot_20260922_105811_yqxubz.jpg" alt="disc">
+        </div>
+        <div class="music-mini-info">
+            <div class="music-mini-title">Hoa nở không màu — Hoài Lâm</div>
+            <div class="music-mini-progress" id="progressBar">
+                <div class="music-mini-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="like-row" onclick="likeProfile()">
+        <span class="heart-icon" id="heartIcon">🤍</span>
+        <span id="likeCount">0</span>
+        <span style="opacity:0.6;">likes</span>
+    </div>
+</div>
+
+<audio id="audio" src="https://raw.githubusercontent.com/kien23334/Index.html/main/snaptik.vn_7460056924998896914.mp3" preload="auto" loop></audio>
+
+<script>
+const DISCORD_ID = "1522769141411348699";
+
+let entered = false;
+function enterSite() {
+    if (entered) return;
+    entered = true;
+    const splash = document.getElementById('splash');
+    splash.classList.add('hide');
+    const main = document.getElementById('main');
+    main.classList.add('show');
+    setTimeout(() => splash.style.display = 'none', 1000);
+
+    const audio = document.getElementById('audio');
+    audio.volume = 0.5;
+    audio.play().then(() => {
+        document.getElementById('discMini').classList.add('playing');
+    }).catch((err) => {
+        console.log('Autoplay lỗi:', err);
+    });
+}
+
+const audio = document.getElementById('audio');
+const discMini = document.getElementById('discMini');
+const progressFill = document.getElementById('progressFill');
+const progressBar = document.getElementById('progressBar');
+
+audio.addEventListener('timeupdate', () => {
+    if (audio.duration) {
+        const percent = (audio.currentTime / audio.duration) * 100;
+        progressFill.style.width = percent + '%';
+    }
+});
+progressBar.addEventListener('click', (e) => {
+    const rect = progressBar.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = percent * audio.duration;
+});
+audio.addEventListener('play', () => discMini.classList.add('playing'));
+audio.addEventListener('pause', () => discMini.classList.remove('playing'));
+
+let liked = false;
+let likeCount = parseInt(localStorage.getItem('profile_likes') || '0');
+document.getElementById('likeCount').textContent = likeCount;
+if (localStorage.getItem('profile_liked') === '1') {
+    liked = true;
+    document.getElementById('heartIcon').textContent = '❤️';
+}
+function likeProfile() {
+    if (liked) return;
+    liked = true;
+    likeCount++;
+    localStorage.setItem('profile_likes', likeCount);
+    localStorage.setItem('profile_liked', '1');
+    document.getElementById('likeCount').textContent = likeCount;
+    const heart = document.getElementById('heartIcon');
+    heart.textContent = '❤️';
+    heart.classList.add('liked');
+    setTimeout(() => heart.classList.remove('liked'), 400);
+}
+
+let viewCount = parseInt(localStorage.getItem('profile_views') || '0');
+viewCount++;
+localStorage.setItem('profile_views', viewCount);
+document.getElementById('viewCount').textContent = viewCount;
+
+async function fetchDiscord() {
+    try {
+        const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+        const data = await r.json();
+        if (!data.success) return;
+        const d = data.data;
+        const u = d.discord_user;
+        const avatarUrl = u.avatar
+            ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`
+            : `https://cdn.discordapp.com/embed/avatars/0.png`;
+        
+        document.getElementById('heroAvatar').src = avatarUrl;
+        document.getElementById('userMiniAvatar').src = avatarUrl;
+        
+        const displayName = u.display_name || u.global_name || u.username;
+        document.getElementById('heroName').textContent = displayName;
+        document.getElementById('userMiniName').textContent = displayName;
+        document.getElementById('userMiniTag').textContent = 'zens_kien';
+        
+        document.getElementById('heroStatus').className = 'hero-status ' + d.discord_status;
+    } catch (e) {}
+}
+
+async function fetchDecoration() {
+    try {
+        const r = await fetch(`https://dcdn.dstn.to/profile/${DISCORD_ID}`);
+        const data = await r.json();
+        if (data.user && data.user.avatar_decoration_data) {
+            const asset = data.user.avatar_decoration_data.asset;
+            const deco = document.getElementById('heroDeco');
+            deco.src = `https://cdn.discordapp.com/avatar-decoration-presets/${asset}.png`;
+            deco.style.display = 'block';
+        }
+    } catch (e) {}
+}
+
+fetchDiscord();
+fetchDecoration();
+setInterval(fetchDiscord, 15000);
+setInterval(fetchDecoration, 60000);
+</script>
+</body>
+</html>
